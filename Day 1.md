@@ -1,14 +1,18 @@
 
 Daily Work Report
+
 Name: Shanmugavel A
+
 Date: 09 June 2025
 
 Tasks Completed Today
 
 Scenario Based Prompt Task 
+
 Task : Completed
 
 Solution Link : ( GitHub/Repository , Document etc.. )
+
 https://docs.google.com/document/d/1Feh63YEUGrNBJZKpAs41kDPKCyZrBbdmxUs02OPciRg/edit?usp=sharing
 
  ========================================
@@ -16,15 +20,12 @@ https://docs.google.com/document/d/1Feh63YEUGrNBJZKpAs41kDPKCyZrBbdmxUs02OPciRg/
 
 Mini Hackathon Submission Report
 
-Name: Shanmu
-Date: 09 June 2025
-Track: Mini Hackathon – Day 1
 Task Type: [Image Generation / Video Generation / Both]
-
 
 Brief Description of Problem Statement
 
 Problem Statement 1- Recreate Image of  the Training Room
+
 Problem Statement 2- Agentic AI and Design Thinking Video
 
 
@@ -32,8 +33,11 @@ Problem Statement 2- Agentic AI and Design Thinking Video
 Tools Used 
 
 Dalle  - image Creation
+
 Chatgpt - image Creation and Video Script Creation
+
 https://elevenlabs.io/ - Voice Over
+
 Pictory - Video Creation
 
 
