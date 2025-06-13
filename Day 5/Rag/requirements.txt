@@ -1,0 +1,6 @@
+streamlit>=1.32.0
+langchain>=0.1.16
+langchain-google-genai>=0.0.7
+google-generativeai>=0.4.1
+protobuf>=4.25.1
+tqdm
