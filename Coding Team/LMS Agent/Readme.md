@@ -3,11 +3,11 @@ Project Title : Agentic AI System for Learner Progress Insights and Engagement O
 
 Project Flow :
 
-  subgraph User Flow
+    User Flow :
+
     A[User Login] --> B[Enter Course Name]
     B --> C[AI Agent Creates Course with Quiz]
     C --> D[Learning Dashboard]
-
     D --> E[User Completes Reading + Quiz]
     E --> F[Learning Event Logger Agent]
     F --> G[Engagement Scorer Agent]
@@ -15,9 +15,10 @@ Project Flow :
     H --> I[Recommendation Generator Agent (RAG)]
     I --> J[Mentor Summary Composer Agent]
     J --> K[Feedback & Insights to Mentor / User]
-  end
 
-  subgraph Admin Flow
+    Admin Flow :
+
     L[Admin Login] --> M[Enter Admin Username]
     M --> N[View All User Activities & Progress]
-  end
+  
+
