@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agentic AI LMS Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Agentic LMS Dashboard</h1>
+
+    <label for="userId">👤 Enter User ID:</label>
+    <input type="text" id="userId" placeholder="e.g., user123" />
+
+    <button onclick="triggerAgent('logger')">Log Learning Events</button>
+    <button onclick="triggerAgent('scorer')">Get Engagement Score</button>
+    <button onclick="triggerAgent('quiz')">Analyze Quiz Results</button>
+    <button onclick="triggerAgent('recommend')">Get Recommendations</button>
+    <button onclick="triggerAgent('mentor')">Generate Mentor Report</button>
+
+    <pre id="responseBox">Response will appear here...</pre>
+  </div>
+
+  <script>
+    async function triggerAgent(agent) {
+      const userId = document.getElementById("userId").value.trim();
+      if (!userId) {
+        alert("Please enter a User ID.");
+        return;
+      }
+
+      const url = `http://127.0.0.1:8000/trigger/${agent}?user_id=${userId}`;
+      document.getElementById("responseBox").textContent = "Loading...";
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        document.getElementById("responseBox").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("responseBox").textContent = "❌ Error: " + err;
+      }
+    }
+  </script>
+</body>
+</html>

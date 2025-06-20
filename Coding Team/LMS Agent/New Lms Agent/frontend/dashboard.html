@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic LMS Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    .active-lesson { background-color: #6366f1; color: white; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <!-- Login Phase -->
+  <div id="loginPhase" class="h-screen flex items-center justify-center">
+    <div class="bg-white p-6 rounded-md shadow-md w-96">
+      <h2 class="text-xl font-bold mb-4">Login</h2>
+      <input id="username" type="text" placeholder="Username" class="w-full mb-3 p-2 border rounded" />
+      <input id="password" type="password" placeholder="Password" class="w-full mb-3 p-2 border rounded" />
+      <button onclick="goToCoursePhase()" class="w-full bg-indigo-600 text-white py-2 rounded">Login</button>
+    </div>
+  </div>
+
+  <!-- Course Name Input -->
+  <div id="coursePhase" class="hidden h-screen flex items-center justify-center">
+    <div class="bg-white p-6 rounded-md shadow-md w-96">
+      <h2 class="text-xl font-bold mb-4">Enter Course Name</h2>
+      <input id="courseInput" type="text" placeholder="Eg: GenAI Basics" class="w-full mb-4 p-2 border rounded" />
+      <button onclick="createCourseModules()" class="w-full bg-green-600 text-white py-2 rounded">Create Course</button>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden h-screen">
+    <div class="flex h-full">
+      <!-- Sidebar -->
+      <aside class="w-80 bg-white p-4 overflow-y-auto border-r">
+        <h2 class="text-xl font-semibold mb-4">Course Modules</h2>
+        <ul id="lessonList" class="space-y-2"></ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h1 class="text-2xl font-bold" id="courseTitle"></h1>
+          <div class="text-sm text-gray-500">Progress: <span id="progressDisplay">0%</span></div>
+        </div>
+        <div id="lessonContent" class="space-y-4"></div>
+        <div id="quizSection" class="space-y-3 mt-6 hidden">
+          <h2 class="font-semibold text-lg">Quiz</h2>
+          <p id="quizQuestion" class="font-medium"></p>
+          <div id="quizOptions" class="space-y-2"></div>
+        </div>
+        <button onclick="markComplete()" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded">Mark as Complete</button>
+      </main>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    let currentIndex = 0;
+    let courseModules = [];
+    let courseName = '';
+    let quizData = [];
+    let completed = 0;
+
+    function goToCoursePhase() {
+      document.getElementById('loginPhase').classList.add('hidden');
+      document.getElementById('coursePhase').classList.remove('hidden');
+    }
+
+    function createCourseModules() {
+      courseName = document.getElementById("courseInput").value || 'My Course';
+
+      fetch("http://127.0.0.1:8000/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ course_name: courseName })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const raw = data.generated_course;
+
+        // Split the result into lessons and quizzes
+        const [lessonPart, quizPart] = raw.split("Quiz Questions:");
+        const lessonLines = lessonPart.split("\n").filter(line => line.trim());
+        courseModules = lessonLines.map((line, i) => ({
+          title: `Lesson ${i + 1}`,
+          content: line.trim()
+        }));
+
+        const quizLines = quizPart.split("\n").filter(line => line.trim());
+        quizData = [];
+        for (let i = 0; i < quizLines.length; i += 5) {
+          const question = quizLines[i].replace(/^\d+\.\s*/, "");
+          const options = quizLines.slice(i + 1, i + 5).map(opt => opt.replace(/^[a-dA-D]\)\s*/, ""));
+          quizData.push({ question, options, answer: options[1] }); // Assuming 2nd option is correct
+        }
+
+        document.getElementById("courseTitle").innerText = courseName;
+        renderSidebar();
+        renderLesson();
+
+        document.getElementById("coursePhase").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+      })
+      .catch(err => {
+        console.error("Course generation failed", err);
+        alert("Error generating course");
+      });
+    }
+
+    function renderSidebar() {
+      const list = document.getElementById("lessonList");
+      list.innerHTML = "";
+      courseModules.forEach((mod, idx) => {
+        const li = document.createElement("li");
+        li.textContent = mod.title;
+        li.className = `cursor-pointer p-2 rounded ${idx === currentIndex ? 'active-lesson' : 'hover:bg-gray-200'}`;
+        li.onclick = () => {
+          currentIndex = idx;
+          renderLesson();
+        };
+        list.appendChild(li);
+      });
+    }
+
+    function renderLesson() {
+      const mod = courseModules[currentIndex];
+      document.getElementById("lessonContent").innerHTML = `
+        <h2 class='text-xl font-bold mb-2'>${mod.title}</h2>
+        <p>${mod.content}</p>
+      `;
+
+      const quiz = quizData[currentIndex];
+      document.getElementById("quizSection").classList.remove("hidden");
+      document.getElementById("quizQuestion").textContent = quiz.question;
+      document.getElementById("quizOptions").innerHTML = "";
+
+      quiz.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.className = "px-3 py-1 bg-gray-200 rounded hover:bg-gray-300";
+        btn.onclick = () => alert(opt === quiz.answer ? "Correct ✅" : "Wrong ❌");
+        document.getElementById("quizOptions").appendChild(btn);
+      });
+
+      renderSidebar();
+    }
+
+    function markComplete() {
+      completed++;
+      currentIndex++;
+      if (currentIndex >= courseModules.length) currentIndex = 0;
+      renderLesson();
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const percent = Math.round((completed / courseModules.length) * 100);
+      document.getElementById("progressDisplay").innerText = `${percent}%`;
+    }
+  </script>
+</body>
+</html>
